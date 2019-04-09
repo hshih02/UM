@@ -35,6 +35,11 @@ void run(FILE *fp)
                 // printf ("read word: %u\n", instruction);
                 Seq_addhi(program_words, (void *)(uintptr_t)instruction);
         }
+        printf("Inst 0: %x\n", (uint32_t)((uintptr_t)(Seq_get(program_words, 0))));
+        printf("Inst 1: %x\n", (uint32_t)((uintptr_t)(Seq_get(program_words, 1))));
+        printf("Inst 2: %x\n", (uint32_t)((uintptr_t)(Seq_get(program_words, 2))));
+        printf("Inst 3: %x\n", (uint32_t)((uintptr_t)(Seq_get(program_words, 3))));
+        printf("Inst 4: %x\n", (uint32_t)((uintptr_t)(Seq_get(program_words, 4))));
 }
 
 int main(int argc, char *argv[])
