@@ -15,7 +15,7 @@ struct mem {
 
 void init_mem(Seq_T program_words);
 
-Seq_T get_seg(int index);
+// static Seq_T get_seg(int index);
 
 uint32_t get_word(int s_ind, int w_ind);
 
