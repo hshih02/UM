@@ -17,19 +17,31 @@ void run(FILE *fp)
                         break;
                 }
                 instruction = Bitpack_newu(instruction, 8, 24, byte);
+                byte = fgetc(fp);
+                if ((int)byte == EOF) {
+                        break;
+                }
                 instruction = Bitpack_newu(instruction, 8, 16, byte);
+                byte = fgetc(fp);
+                if ((int)byte == EOF) {
+                        break;
+                }
                 instruction = Bitpack_newu(instruction, 8, 8, byte);
+                byte = fgetc(fp);
+                if ((int)byte == EOF) {
+                        break;
+                }
                 instruction = Bitpack_newu(instruction, 8, 0, byte);
+                // printf ("read word: %u\n", instruction);
                 Seq_addhi(program_words, (void *)(uintptr_t)instruction);
         }
 }
 
 int main(int argc, char *argv[])
 {
-        int i = 0;
-        assert(argc - i <= 1);    /* at most one file on command line */
-        if (i < argc) {
-                FILE *fp = fopen(argv[i], "r");
+        assert(argc < 3);    /* at most one file on command line */
+        if (argc == 2) {
+                FILE *fp = fopen(argv[1], "r");
                 assert(fp != NULL);
                 run(fp);
                 fclose(fp);

@@ -21,6 +21,6 @@ void initialize(Seq_T program_words)
 void um_run(Seq_T program_words)
 {
         initialize(program_words);
-        uint32_t *prg_ctr = (uint32_t *)get_word(0, 0);
-        (void)*prg_ctr;
+        uintptr_t prg_ctr = (uintptr_t)(get_word(0, 0));
+        (void)prg_ctr;
 }
