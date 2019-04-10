@@ -14,6 +14,17 @@ static Seq_T get_seg(int index)
         return ((Seq_T)Seq_get(mem.segments, index));
 }
 
+int mem_len()
+{
+        return Seq_length(mem.segments);
+}
+
+int word_seq_len(int seg_index)
+{
+        Seq_T current_word_seq = get_seg(seg_index);
+        return Seq_length(current_word_seq);
+}
+
 uint32_t get_word(int s_ind, int w_ind)
 {
         Seq_T theseg = get_seg(s_ind);

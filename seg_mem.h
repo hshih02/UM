@@ -19,4 +19,7 @@ void init_mem(Seq_T program_words);
 
 uint32_t get_word(int s_ind, int w_ind);
 
+int mem_len();
+int word_seq_len(int seg_index);
+
 #endif
