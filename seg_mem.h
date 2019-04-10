@@ -14,12 +14,9 @@ struct mem {
 } mem;
 
 void init_mem(Seq_T program_words);
-
-// static Seq_T get_seg(int index);
-
-uint32_t get_word(int s_ind, int w_ind);
-
+void free_seg_mem();
 int mem_len();
 int word_seq_len(int seg_index);
+uint32_t get_word(int s_ind, int w_ind);
 
 #endif

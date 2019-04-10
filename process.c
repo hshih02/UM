@@ -32,7 +32,12 @@ void um_run(Seq_T program_words)
                 while (curr_word_index < curr_word_seq_len) {
                         run_instruction((uint32_t)prg_ctr);
                         total_segments = mem_len();
-                        prg_ctr = adv_ctr(curr_seg_index, &curr_word_index, prg_ctr);
+                        if (curr_word_index < curr_word_seq_len - 1) {
+                                prg_ctr = adv_ctr(curr_seg_index, 
+                                                  &curr_word_index, prg_ctr);
+                        } else {
+                                break;
+                        }
                 }
                 curr_seg_index++;
         }
@@ -131,7 +136,9 @@ void run_instruction(uint32_t word)
                 case 7: /* halt */
                 {
                         printf("HALT\n");
+                        free_seg_mem();
                         exit(EXIT_SUCCESS);
+                        break;
                 }
                 case 8: /* map segment */
                 {
