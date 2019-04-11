@@ -31,9 +31,12 @@ static struct test_info {
         { "halt-verbose", NULL, "", emit_verbose_halt_test },
         { "add",          NULL, "", emit_add_test},
         { "print-six",    NULL, "6", emit_print_six_test},
-        { "output",       NULL, "132", emit_output_test},
-        { "cmov",         NULL, "232", emit_cmov_test},
-        { "sload-sstore", NULL, "187904819277277", emit_sstore_sload_test}
+        { "output",       NULL, ":-)", emit_output_test},
+        { "cmov",         NULL, "O_O", emit_cmov_test},
+        { "sload-sstore", NULL, "MM", emit_sstore_sload_test}, /* 77 2 77 */
+        { "mult",         NULL, "<", emit_multiply_test}
+        { "div",          NULL, "d", emit_divide_test}
+        { "nand",         NULL, "i", emit_nand_test}
 };
 
   
