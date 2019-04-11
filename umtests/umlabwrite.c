@@ -15,8 +15,10 @@ extern void emit_add_test(Seq_T stream);
 extern void emit_print_six_test(Seq_T stream);
 extern void emit_output_test(Seq_T stream);
 extern void emit_cmov_test(Seq_T stream);
-void emit_sstore_sload_test(Seq_T stream);
-
+extern void emit_sstore_sload_test(Seq_T stream);
+extern void emit_multiply_test(Seq_T stream);
+extern void emit_divide_test(Seq_T stream);
+extern void emit_nand_test(Seq_T stream);
 
 /* The array `tests` contains all unit tests for the lab. */
 
