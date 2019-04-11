@@ -52,9 +52,15 @@ int word_seq_len(int seg_index)
 
 uint32_t get_word(int s_ind, int w_ind)
 {
-        Seq_T theseg = get_seg(s_ind);
-        uint32_t target_word = (uint32_t)(uintptr_t)(Seq_get(theseg, w_ind));
-
+        Seq_T target_seg = get_seg(s_ind);
+        uint32_t target_word = (uint32_t)(uintptr_t)
+                               (Seq_get(target_seg, w_ind));
         return target_word;
 }
 
+void set_word(int s_ind, int w_ind, uint32_t value)
+{        
+        Seq_put(get_seg(s_ind), w_ind, value);
+
+        return target_word;
+}
