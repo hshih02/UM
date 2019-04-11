@@ -62,12 +62,10 @@ void initialize(Seq_T program_words)
 
 void init_reg()
 {
-        int num_registers = 8;
-        uint32_t registers[num_registers];
         int i;
-        for (i = 0; i < num_registers; i++) {
-                registers[i] = 0;
-                printf("reg %i: %x\n", i, registers[i]);
+        for (i = 0; i < num_regs; i++) {
+                regs[i] = 0;
+                printf("reg %i: %x\n", i, regs[i]);
         }
 }
 
@@ -83,6 +81,9 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 0 cond move: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        if (regs[regC] != 0) {
+                                regA = regB;
+                        }
                         break;
                 }
                 case 1: /* segmented load */
@@ -91,6 +92,9 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 1 seg load: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+
+                        regs[regA] = get_word(regB, regC);
+
                         break;
                 }
                 case 2: /* segmented store */
@@ -99,6 +103,9 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 2 seg store: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        set_word(1, 1, 5);
+                        printf("word: %u\n", get_word(1, 1));
+
                         break;
                 }
                 case 3: /* addition */
@@ -157,6 +164,9 @@ void run_instruction(uint32_t word)
                 {
                         uint32_t regC = parse_regC(word);
                         printf("OP 10 output: regC: %x\n", regC);
+
+                        printf("%u\n", regC);
+
                         break;
                 }
                 case 11: /* input */
