@@ -6,6 +6,8 @@
 #include "seg_mem.h"
 #include <bitpack.h>
 
+
+
 void um_run(Seq_T program_words)
 {
         int curr_seg_index;
@@ -71,9 +73,7 @@ void init_reg()
 
 void run_instruction(uint32_t word)
 {
-        printf("RUNNING INSTRUCTION\n");
         uint32_t opcode = parse_op(word);
-        printf("parsed opcode: %x\n", opcode);
         switch (opcode) {
                 case 0: /* conditional move */
                 {
@@ -82,7 +82,7 @@ void run_instruction(uint32_t word)
                         uint32_t regC = parse_regC(word);
                         printf("OP 0 cond move: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
                         if (regs[regC] != 0) {
-                                regA = regB;
+                                regs[regA] = regs[regB];
                         }
                         break;
                 }
@@ -93,7 +93,7 @@ void run_instruction(uint32_t word)
                         uint32_t regC = parse_regC(word);
                         printf("OP 1 seg load: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
 
-                        regs[regA] = get_word(regB, regC);
+                        regs[regA] = get_word(regs[regB], regs[regC]);
 
                         break;
                 }
@@ -103,8 +103,7 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 2 seg store: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
-                        set_word(1, 1, 5);
-                        printf("word: %u\n", get_word(1, 1));
+                        set_word(regs[regA], regs[regB], regs[regC]);
 
                         break;
                 }
@@ -114,6 +113,8 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 3 add: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        regs[regA] = (regs[regB] + regs[regC]);
+
                         break;
                 }
                 case 4: /* multiplication */
@@ -122,6 +123,7 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 4 multiply: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        regs[regA] = (regs[regB] * regs[regC]);
                         break;
                 }
                 case 5: /* division */
@@ -130,6 +132,7 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 5 div: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        regs[regA] = (regs[regB] / regs[regC]);
                         break;
                 }
                 case 6: /* bitwise NAND */
@@ -138,11 +141,12 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 6 NAND: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        regs[regA] = ~(regs[regB] & regs[regC]);
                         break;
                 }
                 case 7: /* halt */
                 {
-                        printf("HALT\n");
+                        printf("\nHALT\n");
                         free_seg_mem();
                         exit(EXIT_SUCCESS);
                         break;
@@ -163,10 +167,7 @@ void run_instruction(uint32_t word)
                 case 10: /* output */
                 {
                         uint32_t regC = parse_regC(word);
-                        printf("OP 10 output: regC: %x\n", regC);
-
-                        printf("%u\n", regC);
-
+                        printf("%u", regs[regC]);
                         break;
                 }
                 case 11: /* input */

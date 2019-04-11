@@ -60,7 +60,5 @@ uint32_t get_word(int s_ind, int w_ind)
 
 void set_word(int s_ind, int w_ind, uint32_t value)
 {        
-        Seq_put(get_seg(s_ind), w_ind, value);
-
-        return target_word;
+        Seq_put(get_seg(s_ind), w_ind, (void *)(uintptr_t)value);
 }
