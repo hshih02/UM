@@ -187,6 +187,9 @@ void run_instruction(uint32_t word)
                         uint32_t regA = parse13_regA(word);
                         uint32_t value = parse13_value(word);
                         printf("OP 13 loadval: regA: %x, value = %u\n", regA, value);
+                        
+                        regs[regA] = value;
+
                         break;
                 }
         }
