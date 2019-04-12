@@ -11,17 +11,16 @@
 // Seq_T read_file(FILE *fp)
 // {
 //         Seq_T program_words = Seq_new(0);
-//         uint32_t byte = 0;
+//         int byte = fgetc(fp);
 //         int width = 8;
-//         int lsb = 24;
-//         uint32_t instruction = 0;
-//         while ((int)byte != EOF) {
-//                 byte = fgetc(fp);
+//         int lsb = 0;
+//         uint32_t instr = 0;
+//         while (byte != EOF) {
 //                 lsb = next_lsb(lsb);
-//                 printf("lsb = %i\n", lsb);
-//                 instruction = Bitpack_newu(instruction, width, lsb, byte);
+//                 instr = Bitpack_newu(instr, width, lsb, (uint32_t)byte);
 //                 if (lsb == 0)
-//                         Seq_addhi(program_words, (void *)(uintptr_t)instruction);
+//                         Seq_addhi(program_words, (void *)(uintptr_t)instr);
+//                 byte = fgetc(fp);
 //         }
 //         if (lsb != 0) {
 //                 fprintf(stderr, "Invalid UM file!\n");
@@ -29,6 +28,7 @@
 //         }
 //         return program_words;
 // }
+
 
 Seq_T read_file(FILE *fp)
 {
@@ -61,6 +61,7 @@ Seq_T read_file(FILE *fp)
         return program_words;
         // printf("Inst 0: %x\n", (uint32_t)((uintptr_t)(Seq_get(program_words, 0))));
 }
+
 
 int main(int argc, char *argv[])
 {

@@ -2,6 +2,16 @@
 
 #include "seg_mem.h"
 
+static struct mem {
+        Seq_T segments;
+        Seq_T unmapped;
+} mem;
+
+static Seq_T get_seg(uint32_t index)
+{
+        return ((Seq_T)Seq_get(mem.segments, index));
+}
+
 void init_mem(Seq_T program_words)
 {
         mem.segments = Seq_new(0);
@@ -38,19 +48,13 @@ int mem_len()
         return Seq_length(mem.segments);
 }
 
-static Seq_T get_seg(int index)
-{
-        return ((Seq_T)Seq_get(mem.segments, index));
-}
-
-
-int word_seq_len(int seg_index)
+int word_seq_len(uint32_t seg_index)
 {
         Seq_T current_word_seq = get_seg(seg_index);
         return Seq_length(current_word_seq);
 }
 
-uint32_t get_word(int seg_index, int word_index)
+uint32_t get_word(uint32_t seg_index, uint32_t word_index)
 {
         Seq_T target_seg = get_seg(seg_index);
         uint32_t target_word = (uint32_t)(uintptr_t)
@@ -58,7 +62,7 @@ uint32_t get_word(int seg_index, int word_index)
         return target_word;
 }
 
-void set_word(int seg_index, int word_index, uint32_t value)
+void set_word(uint32_t seg_index, uint32_t word_index, uint32_t value)
 {        
         Seq_put(get_seg(seg_index), word_index, (void *)(uintptr_t)value);
 }
@@ -95,4 +99,32 @@ void unmap_seg(uint32_t seg_index)
 
         Seq_free(&pending_unmap);
         Seq_addhi(mem.unmapped, (void*)(uintptr_t)seg_index);
+}
+
+void free_seg(uint32_t seg_index)
+{
+        Seq_T pending_free = get_seg(seg_index);
+        Seq_free(&pending_free);
+}
+
+void set_seg(Seq_T pending_set, uint32_t seg_index)
+{
+        Seq_put(mem.segments, seg_index, (void *)(uintptr_t)pending_set);
+}
+
+Seq_T duplicate_seg(uint32_t seg_index)
+{
+        Seq_T target_seg = get_seg(seg_index);
+        int length = Seq_length(target_seg);
+
+        Seq_T duplicate = Seq_new(length);
+
+        int i;
+
+        for(i = 0; i < length; i++) {
+                uintptr_t target_element = (uintptr_t)Seq_get(target_seg, i);
+                Seq_addhi(duplicate, (void *)target_element);
+        }
+
+        return duplicate;
 }

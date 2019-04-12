@@ -6,46 +6,57 @@
 #include "seg_mem.h"
 #include <bitpack.h>
 
-void um_run(Seq_T program_words)
+static uint32_t regs[num_regs];
+
+static inline uint32_t parse_op(uint32_t word)
 {
-        int curr_seg_index;
-        int total_segments;
-        uintptr_t prg_ctr;
-        int curr_word_index;
-        int curr_word_seq_len;
-
-        initialize(program_words);
-
-        curr_seg_index = 0;
-        total_segments = mem_len();
-        prg_ctr = (uintptr_t)get_word(0, 0);
-        curr_word_index = 0;
-
-        while (curr_seg_index < total_segments) {
-                curr_word_seq_len = word_seq_len(curr_seg_index);
-
-                while (curr_word_index < curr_word_seq_len) {
-                        run_instruction((uint32_t)prg_ctr);
-                        total_segments = mem_len();
-                        if (curr_word_index < curr_word_seq_len - 1) {
-                                curr_word_index++;
-                                prg_ctr = set_ctr(curr_seg_index, 
-                                                  curr_word_index, prg_ctr);
-                        } else {
-                                break;
-                        }
-                }
-                curr_seg_index++;
-        }
+        return Bitpack_getu(word, 4, 28);
 }
 
-void initialize(Seq_T program_words)
+static inline uint32_t parse_regA(uint32_t word)
 {
-        init_mem(program_words);
-        init_reg();
+        return Bitpack_getu(word, 3, 6);
 }
 
-void init_reg()
+static inline uint32_t parse_regB(uint32_t word)
+{
+        return Bitpack_getu(word, 3, 3);
+}
+
+static inline uint32_t parse_regC(uint32_t word)
+{
+        return Bitpack_getu(word, 3, 0);
+}
+
+static inline uint32_t parse13_regA(uint32_t word)
+{
+        return Bitpack_getu(word, 3, 25);
+}
+
+static inline uint32_t parse13_value(uint32_t word)
+{
+        return Bitpack_getu(word, 25, 0);
+}
+
+
+static void set_ctr(uint32_t tgt_seg_index,   uint32_t tgt_word_index,
+                    uint32_t *curr_seg_index, uint32_t *curr_word_index, 
+                                                      uint32_t *prg_ctr)
+{
+        *curr_seg_index = tgt_seg_index;
+        *curr_word_index = tgt_word_index;
+        *prg_ctr = (uint32_t)(uintptr_t)get_word(*curr_seg_index, 
+                                                 *curr_word_index);
+}
+
+static void adv_ctr(uint32_t curr_seg_index, uint32_t *curr_word_index, 
+                                                     uint32_t *prg_ctr)
+{
+        (*curr_word_index)++;
+        *prg_ctr = (uintptr_t)get_word(curr_seg_index, *curr_word_index);
+}
+
+static void init_reg()
 {
         uint32_t i;
         for (i = 0; i < num_regs; i++) {
@@ -54,8 +65,17 @@ void init_reg()
         }
 }
 
-void run_instruction(uint32_t word)
+static void initialize(Seq_T program_words)
 {
+        init_mem(program_words);
+        init_reg();
+}
+
+static uint32_t run_instruction(uint32_t *prg_ctr, uint32_t *curr_seg_index, 
+                                              uint32_t *curr_word_index)
+{
+        uint32_t ctr_flag = 0;
+        uint32_t word = *prg_ctr;
         uint32_t opcode = parse_op(word);
         switch (opcode) {
                 case 0: /* conditional move */
@@ -129,7 +149,6 @@ void run_instruction(uint32_t word)
                 }
                 case 7: /* halt */
                 {
-                        // printf("\nHALT\n");
                         free_seg_mem();
                         exit(EXIT_SUCCESS);
                         break;
@@ -141,8 +160,6 @@ void run_instruction(uint32_t word)
                         // printf("OP 8 map: regB: %x, regC: %x\n", regB, regC);
 
                         map_new_seg(&(regs[regB]), regs[regC]);
-
-                        // printf("regs[B] after map: %i\n", regs[regB]);
 
                         break;
                 }
@@ -158,8 +175,8 @@ void run_instruction(uint32_t word)
                 case 10: /* output */
                 {
                         uint32_t regC = parse_regC(word);
-                        printf("%u", regs[regC]); /* for actual output */
-                        // putchar(regs[regC]);
+                        // printf("%u", regs[regC]); /* for actual output */
+                        putchar(regs[regC]);
                         break;
                 }
                 case 11: /* input */
@@ -181,10 +198,19 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
 
-                        // pending_load = get_seg(seg_index);
+                        if(regs[regB] != 0) {
+                                Seq_T pending_load = duplicate_seg(regs[regB]);
+                                free_seg(0);
+                                set_seg(pending_load, 0);
+                        }
 
-                        // get_seg()
-                        printf("OP 12 loadprog: regB: %x, regC: %x\n", regB, regC);
+                        set_ctr(0, regs[regC], 
+                                curr_seg_index, 
+                                curr_word_index, 
+                                prg_ctr);
+
+                        ctr_flag = 1;
+                        // printf("OP 12 loadprog: regB: %x, regC: %x\n", regB, regC);
 
                         break;
                 }
@@ -199,50 +225,51 @@ void run_instruction(uint32_t word)
                         break;
                 }
         }
+
+        return ctr_flag;
 }
 
-uint32_t parse_op(uint32_t word)
+void um_run(Seq_T program_words)
 {
-        return Bitpack_getu(word, 4, 28);
+        uint32_t curr_seg_index;
+        uint32_t curr_word_index;
+        uint32_t total_segments;
+        uint32_t curr_word_seq_len;
+        uint32_t prg_ctr;
+        uint32_t ctr_modded;
+
+        initialize(program_words);
+
+        curr_seg_index = 0;
+        total_segments = mem_len();
+        prg_ctr = (uint32_t)(uintptr_t)get_word(0, 0);
+        curr_word_index = 0;
+        ctr_modded = 0;
+
+        while (curr_seg_index < total_segments) {
+                curr_word_seq_len = word_seq_len(curr_seg_index);
+
+                while (curr_word_index < curr_word_seq_len) {
+                        ctr_modded = run_instruction(&prg_ctr, 
+                                                     &curr_seg_index, 
+                                                     &curr_word_index);
+                        total_segments = mem_len();
+
+                        if (curr_word_index < curr_word_seq_len - 1 
+                                                 && ctr_modded == 0) {
+                                // curr_word_index++;
+                                // set_ctr(curr_seg_index, curr_word_index);
+                                adv_ctr(curr_seg_index, &curr_word_index,
+                                                        &prg_ctr);
+                        } else {
+                                curr_word_seq_len = 
+                                                  word_seq_len(curr_seg_index);
+                                ctr_modded = 0;
+                                break;
+                        }
+                }
+                curr_seg_index++;
+        }
 }
 
-uint32_t parse_regA(uint32_t word)
-{
-        return Bitpack_getu(word, 3, 6);
-}
 
-uint32_t parse_regB(uint32_t word)
-{
-        return Bitpack_getu(word, 3, 3);
-}
-
-uint32_t parse_regC(uint32_t word)
-{
-        return Bitpack_getu(word, 3, 0);
-}
-
-uint32_t parse13_regA(uint32_t word)
-{
-        return Bitpack_getu(word, 3, 25);
-}
-
-uint32_t parse13_value(uint32_t word)
-{
-        return Bitpack_getu(word, 25, 0);
-}
-
-
-uintptr_t set_ctr(int curr_seg_index, int curr_word_index, uintptr_t prg_ctr)
-{
-        prg_ctr = (uintptr_t)get_word(curr_seg_index,
-                                      curr_word_index);
-        return prg_ctr;
-}
-
-// uintptr_t adv_ctr(int curr_seg_index, int *curr_word_index, uintptr_t prg_ctr)
-// {
-//         (*curr_word_index)++;
-//         prg_ctr = (uintptr_t)get_word(curr_seg_index,
-//                                       *curr_word_index);
-//         return prg_ctr;
-// }
