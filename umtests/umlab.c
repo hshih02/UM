@@ -64,6 +64,21 @@ static inline Um_instruction add(Um_register a, Um_register b, Um_register c)
         return three_register(ADD, a, b, c);
 }
 
+static inline Um_instruction mult(Um_register a, Um_register b, Um_register c) 
+{
+        return three_register(MUL, a, b, c);
+}
+
+static inline Um_instruction div(Um_register a, Um_register b, Um_register c) 
+{
+        return three_register(DIV, a, b, c);
+}
+
+static inline Um_instruction nand(Um_register a, Um_register b, Um_register c) 
+{
+        return three_register(NAND, a, b, c);
+}
+
 Um_instruction output(Um_register c)
 {
         // printf("OUTPUT word:\n");
@@ -134,9 +149,9 @@ void emit_print_six_test(Seq_T stream)
 
 void emit_output_test(Seq_T stream)
 {
-        emit(stream, loadval(r1, 1));
-        emit(stream, loadval(r2, 2));
-        emit(stream, loadval(r3, 3));
+        emit(stream, loadval(r1, 58));
+        emit(stream, loadval(r2, 41));
+        emit(stream, loadval(r3, 45));
         emit(stream, output(r1));
         emit(stream, output(r3));
         emit(stream, output(r2));
@@ -145,9 +160,9 @@ void emit_output_test(Seq_T stream)
 
 void emit_cmov_test(Seq_T stream)
 {
-        emit(stream, loadval(r1, 1));
-        emit(stream, loadval(r2, 2));
-        emit(stream, loadval(r3, 3));
+        emit(stream, loadval(r1, 61));
+        emit(stream, loadval(r2, 79));
+        emit(stream, loadval(r3, 95));
         emit(stream, three_register(CMOV, r1, r2 ,r3));
         emit(stream, output(r1));
         emit(stream, output(r3));
@@ -161,15 +176,41 @@ void emit_sstore_sload_test(Seq_T stream)
         emit(stream, loadval(r2, 2));
         emit(stream, loadval(r3, 77));
         emit(stream, loadval(r4, 0));
-        emit(stream, loadval(r5, 14));
+        emit(stream, loadval(r5, 13));
         emit(stream, three_register(SLOAD, r1, r4, r5));
-        emit(stream, output(r1));
         emit(stream, output(r3));
         emit(stream, output(r2));
-        emit(stream, loadval(r6, 7));
-        emit(stream, loadval(r2, 13));
+        emit(stream, loadval(r6, 6));
+        emit(stream, loadval(r2, 12));
         emit(stream, three_register(SLOAD, r7, r4, r6));
         emit(stream, three_register(SSTORE, r4, r2, r7));
         emit(stream, output(r7));
+        emit(stream, halt());
+}
+
+void emit_multiply_test(Seq_T stream)
+{
+        emit(stream, loadval(r1, 10));
+        emit(stream, loadval(r2, 6));
+        emit(stream, mult(r3, r1, r2));
+        emit(stream, output(r3));
+        emit(stream, halt());
+}
+
+void emit_divide_test(Seq_T stream)
+{
+        emit(stream, loadval(r1, 200));
+        emit(stream, loadval(r2, 2));
+        emit(stream, div(r3, r1, r2));
+        emit(stream, output(r3));
+        emit(stream, halt());
+}
+
+void emit_nand_test(Seq_T stream)
+{
+        emit(stream, loadval(r1, 65502));
+        emit(stream, loadval(r2, 65463));
+        emit(stream, nand(r3, r1, r2));
+        emit(stream, output(r3));
         emit(stream, halt());
 }
