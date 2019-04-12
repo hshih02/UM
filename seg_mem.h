@@ -17,7 +17,9 @@ void init_mem(Seq_T program_words);
 void free_seg_mem();
 int mem_len();
 int word_seq_len(int seg_index);
-uint32_t get_word(int s_ind, int w_ind);
-void set_word(int s_ind, int w_ind, uint32_t value);
+uint32_t get_word(int seg_index, int word_index);
+void set_word(int seg_index, int word_index, uint32_t value);
+void map_new_seg(uint32_t *reg, uint32_t word_seq_len);
+void unmap_seg(uint32_t seg_index);
 
 #endif

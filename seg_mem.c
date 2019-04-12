@@ -23,13 +23,13 @@ void free_seg_mem()
         }
         Seq_free(&(mem.segments));
 
-        length = Seq_length(mem.unmapped);
-        while(length != 0)
-        {
-                pending_free = (Seq_T)(Seq_remhi(mem.unmapped));
-                Seq_free(&pending_free);
-                length = Seq_length(mem.unmapped);
-        }
+        // length = Seq_length(mem.unmapped);
+        // while(length != 0)
+        // {
+        //         pending_free = (Seq_T)(Seq_remhi(mem.unmapped));
+        //         Seq_free(&pending_free);
+        //         length = Seq_length(mem.unmapped);
+        // }
         Seq_free(&(mem.unmapped));
 }
 
@@ -50,17 +50,47 @@ int word_seq_len(int seg_index)
         return Seq_length(current_word_seq);
 }
 
-uint32_t get_word(int s_ind, int w_ind)
+uint32_t get_word(int seg_index, int word_index)
 {
-        Seq_T target_seg = get_seg(s_ind);
+        Seq_T target_seg = get_seg(seg_index);
         uint32_t target_word = (uint32_t)(uintptr_t)
-                               (Seq_get(target_seg, w_ind));
+                               (Seq_get(target_seg, word_index));
         return target_word;
 }
 
-void set_word(int s_ind, int w_ind, uint32_t value)
+void set_word(int seg_index, int word_index, uint32_t value)
 {        
-        Seq_put(get_seg(s_ind), w_ind, (void *)(uintptr_t)value);
+        Seq_put(get_seg(seg_index), word_index, (void *)(uintptr_t)value);
 }
 
-void 
+void map_new_seg(uint32_t *reg, uint32_t word_seq_len)
+{
+        int unmapped_len = Seq_length(mem.unmapped);
+        Seq_T new_seg = Seq_new(word_seq_len);
+        uint32_t init_word = 0;
+        uint32_t i;
+
+        for (i = 0; i < word_seq_len; i++) {
+                Seq_addhi(new_seg, (void *)(uintptr_t)init_word);
+        }
+
+        if (unmapped_len != 0) {
+                uint32_t unmapped_index;
+                unmapped_index = (uint32_t)(uintptr_t)
+                                 (Seq_remhi(mem.unmapped));
+                *reg = unmapped_index;
+                Seq_put(mem.segments, unmapped_index,
+                         (void *)(uintptr_t)new_seg);
+        } else {
+                Seq_addhi(mem.segments, new_seg);
+        }
+}
+
+void unmap_seg(uint32_t seg_index)
+{
+        Seq_T pending_unmap;
+        pending_unmap = get_seg(seg_index);
+
+        Seq_free(&pending_unmap);
+        Seq_addhi(mem.unmapped, (void*)(uintptr_t)seg_index);
+}

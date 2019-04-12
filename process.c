@@ -17,11 +17,6 @@ void um_run(Seq_T program_words)
         int curr_word_seq_len;
 
         initialize(program_words);
-        // printf("seg0w0: %x\n", get_word(0, 0));
-        // printf("seg0w1: %x\n", get_word(0, 1));
-        // printf("seg0w2: %x\n", get_word(0, 2));
-        // printf("seg0w3: %x\n", get_word(0, 3));
-        // printf("seg0w4: %x\n", get_word(0, 4));
 
         curr_seg_index = 0;
         total_segments = mem_len();
@@ -43,17 +38,6 @@ void um_run(Seq_T program_words)
                 }
                 curr_seg_index++;
         }
-
-        // prg_ctr = (uintptr_t)get_word(0, 0);
-        // run_instruction((uint32_t)prg_ctr);
-        // prg_ctr = (uintptr_t)get_word(0, 1);
-        // run_instruction((uint32_t)prg_ctr);
-        // prg_ctr = (uintptr_t)get_word(0, 2);
-        // run_instruction((uint32_t)prg_ctr);
-        // prg_ctr = (uintptr_t)get_word(0, 3);
-        // run_instruction((uint32_t)prg_ctr);
-        // prg_ctr = (uintptr_t)get_word(0, 4);
-        // run_instruction((uint32_t)prg_ctr);
 }
 
 void initialize(Seq_T program_words)
@@ -64,10 +48,10 @@ void initialize(Seq_T program_words)
 
 void init_reg()
 {
-        int i;
+        uint32_t i;
         for (i = 0; i < num_regs; i++) {
                 regs[i] = 0;
-                printf("reg %i: %x\n", i, regs[i]);
+                // printf("reg %i: %x\n", i, regs[i]);
         }
 }
 
@@ -80,7 +64,7 @@ void run_instruction(uint32_t word)
                         uint32_t regA = parse_regA(word);
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
-                        printf("OP 0 cond move: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        // printf("OP 0 cond move: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
                         if (regs[regC] != 0) {
                                 regs[regA] = regs[regB];
                         }
@@ -91,7 +75,7 @@ void run_instruction(uint32_t word)
                         uint32_t regA = parse_regA(word);
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
-                        printf("OP 1 seg load: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        // printf("OP 1 seg load: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
 
                         regs[regA] = get_word(regs[regB], regs[regC]);
 
@@ -102,7 +86,7 @@ void run_instruction(uint32_t word)
                         uint32_t regA = parse_regA(word);
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
-                        printf("OP 2 seg store: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        // printf("OP 2 seg store: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
                         set_word(regs[regA], regs[regB], regs[regC]);
 
                         break;
@@ -112,7 +96,7 @@ void run_instruction(uint32_t word)
                         uint32_t regA = parse_regA(word);
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
-                        printf("OP 3 add: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        // printf("OP 3 add: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
                         regs[regA] = (regs[regB] + regs[regC]);
 
                         break;
@@ -122,7 +106,7 @@ void run_instruction(uint32_t word)
                         uint32_t regA = parse_regA(word);
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
-                        printf("OP 4 multiply: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        // printf("OP 4 multiply: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
                         regs[regA] = (regs[regB] * regs[regC]);
                         break;
                 }
@@ -131,7 +115,7 @@ void run_instruction(uint32_t word)
                         uint32_t regA = parse_regA(word);
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
-                        printf("OP 5 div: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        // printf("OP 5 div: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
                         regs[regA] = (regs[regB] / regs[regC]);
                         break;
                 }
@@ -140,13 +124,13 @@ void run_instruction(uint32_t word)
                         uint32_t regA = parse_regA(word);
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
-                        printf("OP 6 NAND: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
+                        // printf("OP 6 NAND: regA: %x, regB: %x, regC: %x\n", regA, regB, regC);
                         regs[regA] = ~(regs[regB] & regs[regC]);
                         break;
                 }
                 case 7: /* halt */
                 {
-                        printf("\nHALT\n");
+                        // printf("\nHALT\n");
                         free_seg_mem();
                         exit(EXIT_SUCCESS);
                         break;
@@ -156,18 +140,25 @@ void run_instruction(uint32_t word)
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
                         printf("OP 8 map: regB: %x, regC: %x\n", regB, regC);
+
+                        map_new_seg(&(regs[regB]), regs[regC]);
+
                         break;
                 }
                 case 9: /* unmap segment */
                 {
                         uint32_t regC = parse_regC(word);
-                        (void)regC;
+                        printf("OP 9 unmap: regC: %x\n", regC);
+                        
+                        unmap_seg(regs[regC]);
+                        
                         break;
                 }
                 case 10: /* output */
                 {
                         uint32_t regC = parse_regC(word);
-                        printf("%u", regs[regC]);
+                        // printf("%u", regs[regC]); /* for actual output */
+                        putchar(regs[regC]);
                         break;
                 }
                 case 11: /* input */
@@ -187,7 +178,7 @@ void run_instruction(uint32_t word)
                 {
                         uint32_t regA = parse13_regA(word);
                         uint32_t value = parse13_value(word);
-                        printf("OP 13 loadval: regA: %x, value = %u\n", regA, value);
+                        // printf("OP 13 loadval: regA: %x, value = %u\n", regA, value);
                         
                         regs[regA] = value;
 
