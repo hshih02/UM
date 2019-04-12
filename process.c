@@ -6,8 +6,6 @@
 #include "seg_mem.h"
 #include <bitpack.h>
 
-
-
 void um_run(Seq_T program_words)
 {
         int curr_seg_index;
@@ -30,8 +28,9 @@ void um_run(Seq_T program_words)
                         run_instruction((uint32_t)prg_ctr);
                         total_segments = mem_len();
                         if (curr_word_index < curr_word_seq_len - 1) {
-                                prg_ctr = adv_ctr(curr_seg_index, 
-                                                  &curr_word_index, prg_ctr);
+                                curr_word_index++;
+                                prg_ctr = set_ctr(curr_seg_index, 
+                                                  curr_word_index, prg_ctr);
                         } else {
                                 break;
                         }
@@ -139,17 +138,19 @@ void run_instruction(uint32_t word)
                 {
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
-                        printf("OP 8 map: regB: %x, regC: %x\n", regB, regC);
+                        // printf("OP 8 map: regB: %x, regC: %x\n", regB, regC);
 
                         map_new_seg(&(regs[regB]), regs[regC]);
+
+                        // printf("regs[B] after map: %i\n", regs[regB]);
 
                         break;
                 }
                 case 9: /* unmap segment */
                 {
                         uint32_t regC = parse_regC(word);
-                        printf("OP 9 unmap: regC: %x\n", regC);
-                        
+                        // printf("OP 9 unmap: regC: %x\n", regC);
+
                         unmap_seg(regs[regC]);
                         
                         break;
@@ -157,21 +158,34 @@ void run_instruction(uint32_t word)
                 case 10: /* output */
                 {
                         uint32_t regC = parse_regC(word);
-                        // printf("%u", regs[regC]); /* for actual output */
-                        putchar(regs[regC]);
+                        printf("%u", regs[regC]); /* for actual output */
+                        // putchar(regs[regC]);
                         break;
                 }
                 case 11: /* input */
                 {
                         uint32_t regC = parse_regC(word);
-                        (void)regC;
+
+                        int input; 
+                        input = fgetc(stdin);
+                        
+                        if (input == EOF) {
+                                regs[regC] = (uint32_t)input;
+                        } else {
+                                regs[regC] = (char)input;
+                        }
                         break;
                 }
                 case 12: /* load prog */
                 {
                         uint32_t regB = parse_regB(word);
                         uint32_t regC = parse_regC(word);
+
+                        // pending_load = get_seg(seg_index);
+
+                        // get_seg()
                         printf("OP 12 loadprog: regB: %x, regC: %x\n", regB, regC);
+
                         break;
                 }
                 case 13: /* load val */
@@ -217,10 +231,18 @@ uint32_t parse13_value(uint32_t word)
         return Bitpack_getu(word, 25, 0);
 }
 
-uintptr_t adv_ctr(int curr_seg_index, int *curr_word_index, uintptr_t prg_ctr)
+
+uintptr_t set_ctr(int curr_seg_index, int curr_word_index, uintptr_t prg_ctr)
 {
-        (*curr_word_index)++;
         prg_ctr = (uintptr_t)get_word(curr_seg_index,
-                                      *curr_word_index);
+                                      curr_word_index);
         return prg_ctr;
 }
+
+// uintptr_t adv_ctr(int curr_seg_index, int *curr_word_index, uintptr_t prg_ctr)
+// {
+//         (*curr_word_index)++;
+//         prg_ctr = (uintptr_t)get_word(curr_seg_index,
+//                                       *curr_word_index);
+//         return prg_ctr;
+// }

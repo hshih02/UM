@@ -24,4 +24,4 @@ uint32_t parse_regC(uint32_t word);
 uint32_t parse13_regA(uint32_t word);
 uint32_t parse13_value(uint32_t word);
 void run_instruction(uint32_t word);
-uintptr_t adv_ctr(int current_seg, int *current_word, uintptr_t prg_ctr);
+uintptr_t set_ctr(int curr_seg_index, int curr_word_index, uintptr_t prg_ctr);

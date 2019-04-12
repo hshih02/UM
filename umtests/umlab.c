@@ -59,6 +59,16 @@ static inline Um_instruction halt(void)
 
 typedef enum Um_register { r0 = 0, r1, r2, r3, r4, r5, r6, r7 } Um_register;
 
+static inline Um_instruction map(Um_register b, Um_register c) 
+{
+        return three_register(ACTIVATE, 0, b, c);
+}
+
+static inline Um_instruction unmap(Um_register c) 
+{
+        return three_register(INACTIVATE, 0, 0, c);
+}
+
 static inline Um_instruction add(Um_register a, Um_register b, Um_register c) 
 {
         return three_register(ADD, a, b, c);
@@ -173,7 +183,7 @@ void emit_cmov_test(Seq_T stream)
 void emit_sstore_sload_test(Seq_T stream)
 {
         emit(stream, loadval(r1, 1));
-        emit(stream, loadval(r2, 2));
+        emit(stream, loadval(r2, 81));
         emit(stream, loadval(r3, 77));
         emit(stream, loadval(r4, 0));
         emit(stream, loadval(r5, 13));
@@ -213,4 +223,37 @@ void emit_nand_test(Seq_T stream)
         emit(stream, nand(r3, r1, r2));
         emit(stream, output(r3));
         emit(stream, halt());
+}
+
+void emit_mapunmap_test(Seq_T stream)
+{
+        emit(stream, loadval(r1, 0));  //r1 = 0
+        emit(stream, loadval(r2, 4));  //r2 = 4
+        emit(stream, map(r5, r2));     //map len4 word seq to $m[1], r5 = 1
+        emit(stream, output(r5));  //should be 1
+        emit(stream, loadval(r3, 1));  //r3 = 1
+        emit(stream, unmap(r3));   //unmap $m[1]
+        emit(stream, map(r4, r2));  //map len4 word seq back to $m[1], r4 = 1
+        emit(stream, output(r4));  //r4 = 1
+        emit(stream, map(r5, r2));  //map len4 word seq to $m[2], r5 = 2
+        emit(stream, output(r5));  //r5 = 2 
+        emit(stream, map(r5, r2)); //map len4 word seq to $m[3], r5 = 3
+        emit(stream, output(r5));  //r5 = 3 
+        emit(stream, map(r5, r2)); //map len4 word seq to $m[4], r5 = 4
+        emit(stream, output(r5));  //r5 = 4 
+        emit(stream, loadval(r3, 4));  //r3 = 4
+        emit(stream, unmap(r3));   //unmap $m[4]
+        emit(stream, map(r5, r2)); //map len4 word seq to $m[4], r5 = 4
+        emit(stream, map(r5, r2)); //map len4 word seq to $m[5], r5 = 5
+        emit(stream, output(r5));  //r5 = 5
+        emit(stream, unmap(r3));   //unmap $m[4]
+        emit(stream, loadval(r3, 2)); //r3 = 2
+        emit(stream, unmap(r3));   //unmap $m[2]
+        emit(stream, map(r5, r2)); //map len4 word seq to $m[2], r5 = 2
+        emit(stream, output(r5));  //r5 = 2
+        emit(stream, map(r5, r2)); //map len4 word seq to $m[4], r5 = 4
+        emit(stream, output(r5));  //r5 = 4
+        emit(stream, map(r5, r2)); //map len4 word seq to $m[6], r5 = 6
+        emit(stream, output(r5));  //r5 = 6
+        emit(stream, halt());   //expected output: 112345246
 }

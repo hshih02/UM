@@ -19,6 +19,7 @@ extern void emit_sstore_sload_test(Seq_T stream);
 extern void emit_multiply_test(Seq_T stream);
 extern void emit_divide_test(Seq_T stream);
 extern void emit_nand_test(Seq_T stream);
+extern void emit_mapunmap_test(Seq_T stream);
 
 /* The array `tests` contains all unit tests for the lab. */
 
@@ -35,10 +36,11 @@ static struct test_info {
         { "print-six",    NULL, "6", emit_print_six_test},
         { "output",       NULL, ":-)", emit_output_test},
         { "cmov",         NULL, "O_O", emit_cmov_test},
-        { "sload-sstore", NULL, "MM", emit_sstore_sload_test}, /* 77 2 77 */
-        { "mult",         NULL, "<", emit_multiply_test}
-        { "div",          NULL, "d", emit_divide_test}
-        { "nand",         NULL, "i", emit_nand_test}
+        { "sstore-sload", NULL, "MQM", emit_sstore_sload_test}, /* 77 81 77 */
+        { "mult",         NULL, "<", emit_multiply_test},
+        { "div",          NULL, "d", emit_divide_test},
+        { "nand",         NULL, "i", emit_nand_test},
+        { "map_unmap",     NULL, "112345246", emit_mapunmap_test} //output is in %u not ASCII
 };
 
   

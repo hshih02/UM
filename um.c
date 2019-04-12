@@ -6,6 +6,30 @@
 #include <assert.h>
 #include <inttypes.h>
 
+// #define next_lsb(lsb) (lsb <= 0 ? 24 : (lsb - 8))
+
+// Seq_T read_file(FILE *fp)
+// {
+//         Seq_T program_words = Seq_new(0);
+//         uint32_t byte = 0;
+//         int width = 8;
+//         int lsb = 24;
+//         uint32_t instruction = 0;
+//         while ((int)byte != EOF) {
+//                 byte = fgetc(fp);
+//                 lsb = next_lsb(lsb);
+//                 printf("lsb = %i\n", lsb);
+//                 instruction = Bitpack_newu(instruction, width, lsb, byte);
+//                 if (lsb == 0)
+//                         Seq_addhi(program_words, (void *)(uintptr_t)instruction);
+//         }
+//         if (lsb != 0) {
+//                 fprintf(stderr, "Invalid UM file!\n");
+//                 exit(EXIT_FAILURE);
+//         }
+//         return program_words;
+// }
+
 Seq_T read_file(FILE *fp)
 {
         Seq_T program_words = Seq_new(0);

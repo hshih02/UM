@@ -65,7 +65,7 @@ void set_word(int seg_index, int word_index, uint32_t value)
 
 void map_new_seg(uint32_t *reg, uint32_t word_seq_len)
 {
-        int unmapped_len = Seq_length(mem.unmapped);
+        int unmapped_length = Seq_length(mem.unmapped);
         Seq_T new_seg = Seq_new(word_seq_len);
         uint32_t init_word = 0;
         uint32_t i;
@@ -74,7 +74,7 @@ void map_new_seg(uint32_t *reg, uint32_t word_seq_len)
                 Seq_addhi(new_seg, (void *)(uintptr_t)init_word);
         }
 
-        if (unmapped_len != 0) {
+        if (unmapped_length != 0) {
                 uint32_t unmapped_index;
                 unmapped_index = (uint32_t)(uintptr_t)
                                  (Seq_remhi(mem.unmapped));
@@ -83,6 +83,8 @@ void map_new_seg(uint32_t *reg, uint32_t word_seq_len)
                          (void *)(uintptr_t)new_seg);
         } else {
                 Seq_addhi(mem.segments, new_seg);
+                int new_seg_index = Seq_length(mem.segments);
+                *reg = new_seg_index - 1;
         }
 }
 
