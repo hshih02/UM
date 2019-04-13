@@ -36,14 +36,6 @@ void free_seg_mem()
 
         }
         Seq_free(&(mem.segments));
-
-        // length = Seq_length(mem.unmapped);
-        // while(length != 0)
-        // {
-        //         pending_free = (Seq_T)(Seq_remhi(mem.unmapped));
-        //         Seq_free(&pending_free);
-        //         length = Seq_length(mem.unmapped);
-        // }
         Seq_free(&(mem.unmapped));
 }
 
