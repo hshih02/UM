@@ -41,7 +41,7 @@ static struct test_info {
         { "mult",         NULL, "<", emit_multiply_test},
         { "div",          NULL, "d", emit_divide_test},
         { "nand",         NULL, "i", emit_nand_test},
-        { "map_unmap",    NULL, "112345246", emit_mapunmap_test}, //output is in %u not ASCII
+        { "map_unmap",    NULL, "0", emit_mapunmap_test}, //output is in %u not ASCII
         { "loadprog",     NULL, "~", emit_loadprog_test}
 };
   

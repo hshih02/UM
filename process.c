@@ -47,7 +47,8 @@ static inline uint32_t parse13_value(uint32_t word)
         return Bitpack_getu(word, 25, 0);
 }
 
-static uint32_t set_ctr(uint32_t seg_index, uint32_t curr_word_index, uint32_t prg_ctr)
+static uint32_t set_ctr(uint32_t seg_index, uint32_t curr_word_index, 
+                                                    uint32_t prg_ctr)
 {
         prg_ctr = (uint32_t)(uintptr_t)get_word(seg_index, curr_word_index);
         return prg_ctr;

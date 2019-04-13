@@ -1,0 +1,12 @@
+add.um
+cmov.um
+div.um
+halt.um
+halt-verbose.um
+loadprog.um
+map_unmap.um
+mult.um
+nand.um
+output.um
+print-six.um
+sstore-sload.um

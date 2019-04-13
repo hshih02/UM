@@ -235,32 +235,28 @@ void emit_mapunmap_test(Seq_T stream)
         emit(stream, loadval(r1, 0));  //r1 = 0
         emit(stream, loadval(r2, 4));  //r2 = 4
         emit(stream, map(r5, r2));     //map len4 word seq to $m[1], r5 = 1
-        emit(stream, output(r5));  //should be 1
         emit(stream, loadval(r3, 1));  //r3 = 1
         emit(stream, unmap(r3));   //unmap $m[1]
         emit(stream, map(r4, r2));  //map len4 word seq back to $m[1], r4 = 1
-        emit(stream, output(r4));  //r4 = 1
         emit(stream, map(r5, r2));  //map len4 word seq to $m[2], r5 = 2
-        emit(stream, output(r5));  //r5 = 2 
         emit(stream, map(r5, r2)); //map len4 word seq to $m[3], r5 = 3
-        emit(stream, output(r5));  //r5 = 3 
         emit(stream, map(r5, r2)); //map len4 word seq to $m[4], r5 = 4
-        emit(stream, output(r5));  //r5 = 4 
         emit(stream, loadval(r3, 4));  //r3 = 4
         emit(stream, unmap(r3));   //unmap $m[4]
         emit(stream, map(r5, r2)); //map len4 word seq to $m[4], r5 = 4
         emit(stream, map(r5, r2)); //map len4 word seq to $m[5], r5 = 5
-        emit(stream, output(r5));  //r5 = 5
         emit(stream, unmap(r3));   //unmap $m[4]
         emit(stream, loadval(r3, 2)); //r3 = 2
         emit(stream, unmap(r3));   //unmap $m[2]
         emit(stream, map(r5, r2)); //map len4 word seq to $m[2], r5 = 2
-        emit(stream, output(r5));  //r5 = 2
         emit(stream, map(r5, r2)); //map len4 word seq to $m[4], r5 = 4
-        emit(stream, output(r5));  //r5 = 4
         emit(stream, map(r5, r2)); //map len4 word seq to $m[6], r5 = 6
-        emit(stream, output(r5));  //r5 = 6
-        emit(stream, halt());   //expected output: 112345246
+        emit(stream, add(r7, r5, r3));
+        emit(stream, add(r7, r7, r2));
+        emit(stream, mult(r7, r7, r3));
+        emit(stream, mult(r7, r7, r3));
+        emit(stream, output(r7));
+        emit(stream, halt());   //expected output: 48
 }
 
 void emit_loadprog_test(Seq_T stream)

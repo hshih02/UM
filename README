@@ -2,44 +2,115 @@ README
 
 Ryan Hoff (fhoff01), Henning Shih (hshih02)
 
-We received help from TAs in Halligan
+TA Acknowledgements: Ben Santaus, Jess, Sammy, Miko, Byron, Noah, Sam, Ashton,
+                     Leila, Daniel, Michael, Madeline, Kate
 
-Everything has been correctly implemented.
+Everything has been correctly implemented. 
 
 Significant departures from design: 
 
 Architecture:
-	um:
-		reads the file and sends the instructions to process.
-	process:
+OVERVIEW
+	um.c:
+		Reads the UM program and packs the instructions into a 
+                Hanson sequence of uint32_t words, which it then passes 
+                into the UM itself (process.c)
+	process.c:
 		Process contains the abstraction for registers and is
 		responsible for running the instructions. It interfaces
-		with seg_mem.
-	seg_mem:
+		with seg_mem, and is essentially the actual main module
+                of the UM. 
+	seg_mem.c:
 		Seg_mem is the abstraction of the segmented memory. The
 		segmented  memory is made out of a sequence of sequences
-		containing instructions as uint32_t's. It handles operations
-		such as mapping and unmapping of segments, in addition to
-		secret operations like remapping segments.
+		containing instructions as uint32_t's. The actual segmented 
+                memory sequences are abstracted away and can only be accessed
+                via provided function. An additional sequence "unmapped"
+                serves as book keeping to keep track of unmapped segments. 
 
-Our UM can execute 50 million instructions in:
+Original design featured a "circular" access map between modules, where
+everything had limited access to one another at some point. The current 
+design is heavily abstracted and does not allow direct access to the 
+segmented memory at any level. um.c now handles only file readin and passing
+on the instructions into process.c. process.c contains an array representing
+the registers, and handles everything from decoding the instructions to
+calling appropriate functions to perform computations and manipulate memory.
+The access flow of these three modules is now entirely linear, shown as
+follows:
+
+                                UM.C
+                                  v
+                              PROCESS.C
+                                  v
+                              SEG_MEM.C
+
+um.c is only responsible for readin and passing instructions into  
+process.c, and at no point does process.c have direct access to the actual
+data structures representing memory. Finally, seg_mem.c is now a fully
+independent module with functions for manipulating its sequences.
+
+
+Our UM can execute 50 million instructions in roughly 8,800 seconds. This 
+figure is based off our UM's run time of the midmark.um stress test, which
+contains 30110 instructions. Our UM finishes the test in 5.3 seconds,
+so (5.3 / 30110) * 50000000 = ~8801.06
+
 
 Unit tests:
-	add.um
-	cmov.um
-	div.um
-	halt.um
-	halt-verbose.um
-	loadprog.um
-	map_unmap.um
-	mult.um
-	nand.um
-	output.um
-	print-six.um
-	sstore-sload.um
+	add.um          : Tests add but doesn't print.
+
+	cmov.um         : Tests conditional move by loading 3 registers,
+                          calling cmov to "overwrite" one of the registers
+                          with one of the other two values, and then prints
+                          each register out of order to form a face in ASCII
+
+	div.um          : Tests the divide instruction by calling division
+                          on two values and printing the register with the
+                          result in ASCII.
+
+	halt.um         : Tests halt as it only calls halt.
+
+	halt-verbose.um : Tests load, output, and halt by loading chars into
+                          registers, printing them out with print, and then
+                          calling halt.
+
+	loadprog.um     : Primarily tests load program. A load program call 
+                          referencing a later line in the instructions is
+                          run to act as a "jump" command to skip lines.
+                          Final output is a single ASCII character assuming 
+                          load program is successful in moving the program
+                          counter. Also serves to test the memory cleaning of
+                          the halt instruction by calling a map segment 
+                          at some point.
+
+	mult.um         : Tests the multiply function by calling multiply and 
+                          printing the registers with the result in ASCII.
+
+	nand.um         : Tests the NAND function by calling NAND and printing 
+                          the registers with the result in ASCII.
+
+	output.um       : Tests load and output by loading numerical values
+                          into registers and printing them back out in ASCII.
+
+	print-six.um    : Tests the add function by calling add and printing 
+                          the register with the result.
+
+	sstore-sload.um : Tests segmented load and segmented store by storing
+                          a previous instruction to a register and then loading
+                          it into a later instruction, effectively replacing it
+                          and running the previous one again. In this case,
+                          a line that originally specifies output r7 will
+                          instead run output r3.
+        map_unmap.um    : Extensively tests map and unmap by calling multiple 
+                          instances of each and doing math on the return
+                          registers to ensure output is as expected. Final 
+                          output should be a singular 0 in ASCII.
 
 Hours spent analyzing the assignment:
+6
 
 Hours spent preparing the design:
+10
 
 Hours spent solving the problems after analysis:
+30
