@@ -64,6 +64,11 @@ static inline Um_instruction map(Um_register b, Um_register c)
         return three_register(ACTIVATE, 0, b, c);
 }
 
+static inline Um_instruction loadprog(Um_register b, Um_register c) 
+{
+        return three_register(LOADP, 0, b, c);
+}
+
 static inline Um_instruction unmap(Um_register c) 
 {
         return three_register(INACTIVATE, 0, 0, c);
@@ -256,4 +261,24 @@ void emit_mapunmap_test(Seq_T stream)
         emit(stream, map(r5, r2)); //map len4 word seq to $m[6], r5 = 6
         emit(stream, output(r5));  //r5 = 6
         emit(stream, halt());   //expected output: 112345246
+}
+
+void emit_loadprog_test(Seq_T stream)
+{
+        emit(stream, loadval(r1, 0));  //r1 = 0
+        emit(stream, loadval(r2, 12));  //r2 = 12
+        emit(stream, loadval(r3, 0));  //r3 = 0
+        emit(stream, map(r5, r2));     //map len11 word seq to $m[1], r5 = 1
+        emit(stream, loadprog(r3, r2));
+        emit(stream, output(r5));  //should be 1
+        emit(stream, loadval(r3, 1));  //r3 = 1
+        emit(stream, unmap(r3));   //unmap $m[1]
+        emit(stream, map(r4, r2));  //map len4 word seq back to $m[1], r4 = 1
+        emit(stream, loadval (r5, 64));
+        emit(stream, loadprog(r3, r2));
+        emit(stream, halt());
+        emit(stream, loadval (r5, 126));
+        // emit(stream, loadprog(r1, r1));
+        emit(stream, output(r5)); 
+        emit(stream, halt());
 }

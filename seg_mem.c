@@ -7,6 +7,7 @@ static struct mem {
         Seq_T unmapped;
 } mem;
 
+
 static Seq_T get_seg(uint32_t index)
 {
         return ((Seq_T)Seq_get(mem.segments, index));
@@ -28,8 +29,11 @@ void free_seg_mem()
         while(length != 0)
         {
                 pending_free = (Seq_T)(Seq_remhi(mem.segments));
-                Seq_free(&pending_free);
+                if (pending_free != NULL) {
+                        Seq_free(&pending_free);
+                }
                 length = Seq_length(mem.segments);
+
         }
         Seq_free(&(mem.segments));
 
@@ -98,6 +102,7 @@ void unmap_seg(uint32_t seg_index)
         pending_unmap = get_seg(seg_index);
 
         Seq_free(&pending_unmap);
+        Seq_put(mem.segments, seg_index, NULL);
         Seq_addhi(mem.unmapped, (void*)(uintptr_t)seg_index);
 }
 

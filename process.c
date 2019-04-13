@@ -6,6 +6,8 @@
 #include "seg_mem.h"
 #include <bitpack.h>
 
+#define num_regs 8
+
 static uint32_t regs[num_regs];
 
 static inline uint32_t parse_op(uint32_t word)
@@ -38,22 +40,10 @@ static inline uint32_t parse13_value(uint32_t word)
         return Bitpack_getu(word, 25, 0);
 }
 
-
-static void set_ctr(uint32_t tgt_seg_index,   uint32_t tgt_word_index,
-                    uint32_t *curr_seg_index, uint32_t *curr_word_index, 
-                                                      uint32_t *prg_ctr)
+static uint32_t set_ctr(uint32_t seg_index, uint32_t curr_word_index, uint32_t prg_ctr)
 {
-        *curr_seg_index = tgt_seg_index;
-        *curr_word_index = tgt_word_index;
-        *prg_ctr = (uint32_t)(uintptr_t)get_word(*curr_seg_index, 
-                                                 *curr_word_index);
-}
-
-static void adv_ctr(uint32_t curr_seg_index, uint32_t *curr_word_index, 
-                                                     uint32_t *prg_ctr)
-{
-        (*curr_word_index)++;
-        *prg_ctr = (uintptr_t)get_word(curr_seg_index, *curr_word_index);
+        prg_ctr = (uint32_t)(uintptr_t)get_word(seg_index, curr_word_index);
+        return prg_ctr;
 }
 
 static void init_reg()
@@ -71,9 +61,9 @@ static void initialize(Seq_T program_words)
         init_reg();
 }
 
-static uint32_t run_instruction(uint32_t *prg_ctr, uint32_t *curr_seg_index, 
-                                              uint32_t *curr_word_index)
+static uint32_t run_instruction(uint32_t *prg_ctr, uint32_t *curr_word_index)
 {
+        (void)curr_word_index;
         uint32_t ctr_flag = 0;
         uint32_t word = *prg_ctr;
         uint32_t opcode = parse_op(word);
@@ -149,6 +139,7 @@ static uint32_t run_instruction(uint32_t *prg_ctr, uint32_t *curr_seg_index,
                 }
                 case 7: /* halt */
                 {
+                        // printf("\nHALT\n");
                         free_seg_mem();
                         exit(EXIT_SUCCESS);
                         break;
@@ -160,6 +151,8 @@ static uint32_t run_instruction(uint32_t *prg_ctr, uint32_t *curr_seg_index,
                         // printf("OP 8 map: regB: %x, regC: %x\n", regB, regC);
 
                         map_new_seg(&(regs[regB]), regs[regC]);
+
+                        // printf("regs[B] after map: %i\n", regs[regB]);
 
                         break;
                 }
@@ -204,14 +197,12 @@ static uint32_t run_instruction(uint32_t *prg_ctr, uint32_t *curr_seg_index,
                                 set_seg(pending_load, 0);
                         }
 
-                        set_ctr(0, regs[regC], 
-                                curr_seg_index, 
-                                curr_word_index, 
-                                prg_ctr);
+                        *curr_word_index = regs[regC];
+                        *prg_ctr = set_ctr(0, *curr_word_index, *prg_ctr);
+                
 
-                        ctr_flag = 1;
                         // printf("OP 12 loadprog: regB: %x, regC: %x\n", regB, regC);
-
+                        ctr_flag = 1;
                         break;
                 }
                 case 13: /* load val */
@@ -231,45 +222,29 @@ static uint32_t run_instruction(uint32_t *prg_ctr, uint32_t *curr_seg_index,
 
 void um_run(Seq_T program_words)
 {
-        uint32_t curr_seg_index;
-        uint32_t curr_word_index;
-        uint32_t total_segments;
-        uint32_t curr_word_seq_len;
-        uint32_t prg_ctr;
-        uint32_t ctr_modded;
 
+        uint32_t prg_ctr;
+        uint32_t curr_word_index;
+        uint32_t curr_word_seq_len;
+        uint32_t ctr_modded;
         initialize(program_words);
 
-        curr_seg_index = 0;
-        total_segments = mem_len();
         prg_ctr = (uint32_t)(uintptr_t)get_word(0, 0);
         curr_word_index = 0;
         ctr_modded = 0;
 
-        while (curr_seg_index < total_segments) {
-                curr_word_seq_len = word_seq_len(curr_seg_index);
+        curr_word_seq_len = word_seq_len(0);
 
-                while (curr_word_index < curr_word_seq_len) {
-                        ctr_modded = run_instruction(&prg_ctr, 
-                                                     &curr_seg_index, 
-                                                     &curr_word_index);
-                        total_segments = mem_len();
-
-                        if (curr_word_index < curr_word_seq_len - 1 
-                                                 && ctr_modded == 0) {
-                                // curr_word_index++;
-                                // set_ctr(curr_seg_index, curr_word_index);
-                                adv_ctr(curr_seg_index, &curr_word_index,
-                                                        &prg_ctr);
-                        } else {
-                                curr_word_seq_len = 
-                                                  word_seq_len(curr_seg_index);
-                                ctr_modded = 0;
-                                break;
-                        }
+        while (curr_word_index < curr_word_seq_len) {
+                ctr_modded = run_instruction(&prg_ctr, &curr_word_index);
+                if (curr_word_index < curr_word_seq_len - 1 
+                                         && ctr_modded == 0) {
+                        curr_word_index++;
+                        prg_ctr = set_ctr(0, curr_word_index, prg_ctr);
                 }
-                curr_seg_index++;
+                else {
+                        curr_word_seq_len = word_seq_len(0);
+                        ctr_modded = 0;
+                }
         }
 }
-
-

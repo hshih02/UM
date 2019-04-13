@@ -7,8 +7,6 @@
 #include "bitpack.h"
 #include <inttypes.h>
 
-#define num_regs 8
-
 void um_run(Seq_T program_words);
 
 // void init_reg();
