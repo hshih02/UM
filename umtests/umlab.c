@@ -278,7 +278,6 @@ void emit_loadprog_test(Seq_T stream)
         emit(stream, loadprog(r3, r2));
         emit(stream, halt());
         emit(stream, loadval (r5, 126));
-        // emit(stream, loadprog(r1, r1));
         emit(stream, output(r5)); 
         emit(stream, halt());
 }
