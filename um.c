@@ -1,14 +1,22 @@
-/* um.c */
+/**************************************************************
+ *
+ *                          um.c
+ *
+ *     Assignment: HW6
+ *     Authors:  Henning Shih, Ryan Hoff 
+ *     Date:     Apr 11, 2019
+ *     
+ *     Handles initial file loading and read in for a UM program
+ *
+ **************************************************************/
 
 #include <stdlib.h>
 #include <stdio.h>
 #include "process.h"
 #include <assert.h>
 #include <inttypes.h>
-#include <um-dis.h>
 
 #define next_lsb(lsb) (lsb <= 0 ? 24 : (lsb - 8))
-
 
 Seq_T read_file(FILE *fp)
 {
@@ -22,8 +30,6 @@ Seq_T read_file(FILE *fp)
                 instr = Bitpack_newu(instr, width, lsb, byte);
                 if (lsb == 0)
                         Seq_addhi(program_words, (void *)(uintptr_t)instr);
-                        // const char * dis = Um_disassemble(instr);
-                        // printf("DISASSEMBLE: %s\n", dis);
                 byte = fgetc(fp);
         }
         if (lsb != 0) {
@@ -32,40 +38,6 @@ Seq_T read_file(FILE *fp)
         }
         return program_words;
 }
-
-
-
-// Seq_T read_file(FILE *fp)
-// {
-//         Seq_T program_words = Seq_new(0);
-//         while (1) {
-//                 uint32_t instruction = 0;
-//                 uint32_t byte = fgetc(fp);
-//                 if ((int)byte == EOF) {
-//                         break;
-//                 }
-//                 instruction = Bitpack_newu(instruction, 8, 24, byte);
-//                 byte = fgetc(fp);
-//                 if ((int)byte == EOF) {
-//                         break;
-//                 }
-//                 instruction = Bitpack_newu(instruction, 8, 16, byte);
-//                 byte = fgetc(fp);
-//                 if ((int)byte == EOF) {
-//                         break;
-//                 }
-//                 instruction = Bitpack_newu(instruction, 8, 8, byte);
-//                 byte = fgetc(fp);
-//                 if ((int)byte == EOF) {
-//                         break;
-//                 }
-//                 instruction = Bitpack_newu(instruction, 8, 0, byte);
-//                 // printf ("read word: %u\n", instruction);
-//                 Seq_addhi(program_words, (void *)(uintptr_t)instruction);
-//         }
-//         return program_words;
-//         // printf("Inst 0: %x\n", (uint32_t)((uintptr_t)(Seq_get(program_words, 0))));
-// }
 
 int main(int argc, char *argv[])
 {

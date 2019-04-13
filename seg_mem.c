@@ -1,4 +1,14 @@
-/* seg_mem.c */
+/**************************************************************
+ *
+ *                     seg_mem.c
+ *
+ *     Assignment: HW6
+ *     Authors:  Henning Shih, Ryan Hoff 
+ *     Date:     Apr 11, 2019
+ *     
+ *     Segmented memory module utilizing Hanson sequences
+ *
+ **************************************************************/
 
 #include "seg_mem.h"
 

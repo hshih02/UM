@@ -1,1 +1,45 @@
 README
+
+Ryan Hoff (fhoff01), Henning Shih (hshih02)
+
+We received help from TAs in Halligan
+
+Everything has been correctly implemented.
+
+Significant departures from design: 
+
+Architecture:
+	um:
+		reads the file and sends the instructions to process.
+	process:
+		Process contains the abstraction for registers and is
+		responsible for running the instructions. It interfaces
+		with seg_mem.
+	seg_mem:
+		Seg_mem is the abstraction of the segmented memory. The
+		segmented  memory is made out of a sequence of sequences
+		containing instructions as uint32_t's. It handles operations
+		such as mapping and unmapping of segments, in addition to
+		secret operations like remapping segments.
+
+Our UM can execute 50 million instructions in:
+
+Unit tests:
+	add.um
+	cmov.um
+	div.um
+	halt.um
+	halt-verbose.um
+	loadprog.um
+	map_unmap.um
+	mult.um
+	nand.um
+	output.um
+	print-six.um
+	sstore-sload.um
+
+Hours spent analyzing the assignment:
+
+Hours spent preparing the design:
+
+Hours spent solving the problems after analysis:
